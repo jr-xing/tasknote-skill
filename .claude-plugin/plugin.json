@@ -1,0 +1,19 @@
+{
+  "name": "tasknote",
+  "version": "0.1.0",
+  "description": "Manage research task lifecycle using mdbase-tasknotes (mtn) CLI — task creation, time tracking, experiment/data logs, meeting notes, and project hierarchy in an Obsidian vault.",
+  "author": {
+    "name": "Jerry Xing",
+    "email": "j.xing.www@gmail.com"
+  },
+  "repository": "https://github.com/jxing/tasknote-skill",
+  "license": "MIT",
+  "keywords": [
+    "task-management",
+    "obsidian",
+    "mdbase-tasknotes",
+    "research",
+    "time-tracking",
+    "experiment-log"
+  ]
+}

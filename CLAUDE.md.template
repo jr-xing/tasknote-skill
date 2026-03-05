@@ -1,0 +1,82 @@
+# Task Management Integration
+
+This repository uses **mdbase-tasknotes** (`mtn`) for task lifecycle management. All work sessions should be tracked through the task system.
+
+## Setup
+
+Task context is stored in `.tasknote.yaml` at the repo root:
+
+```yaml
+# .tasknote.yaml
+collection: "/path/to/obsidian-vault"       # Where the task notes live
+projects:                                     # Projects this repo contributes to
+  - "[[projects/2026-02-MICCAI]]"
+  - "[[projects/2026-04-GRANT]]"
+```
+
+The `tasknote` skill (installed as the `tasknote` plugin) provides full documentation on note types, templates, commands, and property formats. **Always read the skill's SKILL.md and its references/ directory before creating or modifying task notes.**
+
+## Session Workflow
+
+### On Session Start
+
+1. Read `.tasknote.yaml` to get the collection path and project list.
+2. List active tasks for this repo's projects:
+   ```bash
+   mtn list --status open,in-progress +project-name -p <collection>
+   ```
+3. Identify the active task:
+   - If the user's prompt already specifies a task (e.g., "work on the preprocessing pipeline", "continue the nnU-Net training"), match it to an existing task via `mtn search` and proceed without asking.
+   - If the user describes new work that doesn't match an existing task, create one using the skill's prompt-first workflow.
+   - Only if the user's intent is ambiguous, show the active task list and ask which task they're working on.
+4. Start a timer for the selected task:
+   ```bash
+   mtn timer start <task-file> -p <collection>
+   ```
+
+### During the Session
+
+- When the user completes meaningful work (a feature, a fix, an experiment run, a data processing step), **append a Log entry** to the active task note's body with a concise summary of what was done.
+- If results are produced (metrics, errors, data counts), also update the relevant **experiment log** or **data log** per the skill's instructions.
+- If a session produces dense technical detail (>20 lines), extract it to a **detail card** and link from the task.
+- If the user pivots to a different task mid-session, stop the current timer and start a new one on the new task.
+
+### On Session End
+
+When the user says they're done, wrapping up, or the work reaches a natural stopping point:
+
+1. Stop the timer:
+   ```bash
+   mtn timer stop <task-file> -p <collection>
+   ```
+2. Add a final Log entry summarizing the session's work.
+3. If this is a multi-session task, ask the user when they plan to continue and update the `scheduled` field to that date (for calendar visibility).
+4. If the task is fully complete, follow the skill's Phase 3 (completion) workflow — add a Summary section, set status to done.
+
+## Multi-Project Repos
+
+This repo may contain code for multiple projects (see `projects` in `.tasknote.yaml`). When the user's request is ambiguous about which project it relates to, ask. Don't assume — a data preprocessing script might serve one project or many.
+
+When creating new tasks, always link to the correct project(s) via the `projects` frontmatter field.
+
+## Filename Convention
+
+All notes follow the pattern `<date>-<TYPE> <title>.md`. After `mtn create`, rename the generated file:
+
+```bash
+mtn create "My task @experiment +2026-02-MICCAI" -p <collection>
+# Output: → tasks/My task.md
+DATE=$(date +%Y-%m-%d)
+mv "<collection>/tasks/My task.md" "<collection>/tasks/${DATE}-TASK My task.md"
+```
+
+Type prefixes: `PROJECT`, `TASK`, `CARD`, `REF`, `DATA-LOG`, `EXP-LOG`, `MEETING`. See the skill's Filename Convention section for full details.
+
+## Key Behaviors
+
+- **Prompt-first**: If the user describes work to do without explicitly saying "create a task", infer whether a task should be created. If the intent is clear, create it. If ambiguous, ask.
+- **Don't fragment**: One task note per logical piece of work. Use Log entries for per-session narrative, not separate task notes.
+- **Cross-update logs**: When work produces data changes or experiment results, update both the task note AND the relevant data/experiment log.
+- **Time tracking is automatic**: The timer writes `timeEntries` to frontmatter. Don't manually edit `timeEntries` — just use `mtn timer start/stop`.
+- **Filename convention**: Always rename files to `<date>-<TYPE> <title>.md` after creation. `mtn` indexes by frontmatter, not filename, so this is safe.
+- **Use the skill**: The `tasknote` skill has templates, taxonomy, property types, and command references. Read it before making structural decisions about notes.
