@@ -1,23 +1,22 @@
 # TaskNote — Claude Code Plugin
 
-A Claude Code plugin for managing research task lifecycle using [mdbase-tasknotes](https://github.com/jxing/mdbase-tasknotes) (`mtn`) CLI. Tracks tasks, experiments, data processing, and meetings in an Obsidian vault with markdown files.
+A Claude Code plugin for managing research task lifecycle using [mdbase-tasknotes](https://github.com/jr-xing/mdbase-tasknotes) (`mtn`) CLI. Tracks tasks, experiments, data processing, and meetings in an Obsidian vault with markdown files.
 
 ## What It Does
 
-When installed, Claude Code gains the ability to:
+This plugin provides **two skills**:
 
-- **Create and manage tasks** from natural language — "I need to retrain the segmentation model with Yale data" becomes a properly tagged task with time tracking
-- **Track multi-session work** across days/weeks with per-session time entries and log narratives
-- **Maintain experiment logs** with run configs, metrics, and best-result tracking
-- **Maintain data logs** with pipeline stage tables and changelogs
-- **Write meeting notes** with decisions, action items linked to tasks
-- **Follow a project hierarchy** — Project → Task → Cards (detail/reference), with cross-linked logs
+**`tasknote-quick`** — Lightweight task creation and updates. Use for everyday task operations: creating tasks, marking done, listing what's on your plate, checking overdue items. Fast and minimal.
 
-All notes are plain markdown with YAML frontmatter, stored in your Obsidian vault. They work with both the `mtn` CLI and the [TaskNotes](https://github.com/jxing/tasknotes) Obsidian plugin.
+**`tasknote`** — Full lifecycle management. Use when you need the complete research workflow: experiment logs with run tracking, data logs with pipeline tables, meeting notes with action items, multi-session tasks with time tracking, and project hierarchy management.
+
+Both skills share the same conventions: proper project/task matching (always verifies wikilinks before creating them), filename convention (`YYYY-MM-DD-TYPE Title.md`), and prompt-first workflow.
+
+All notes are plain markdown with YAML frontmatter, stored in your Obsidian vault. They work with both the `mtn` CLI and the [TaskNotes](https://github.com/jr-xing/tasknotes) Obsidian plugin.
 
 ## Prerequisites
 
-- [mdbase-tasknotes](https://github.com/jxing/mdbase-tasknotes) (`mtn`) CLI installed
+- [mdbase-tasknotes](https://github.com/jr-xing/mdbase-tasknotes) (`mtn`) CLI installed
 - An Obsidian vault (or any folder) initialized with `mtn init`
 
 ## Installation
@@ -31,7 +30,7 @@ claude plugin add /path/to/tasknote-skill
 Or from GitHub:
 
 ```bash
-claude plugin add github:jxing/tasknote-skill
+claude plugin add github:jr-xing/tasknote-skill
 ```
 
 ### Per-repo setup
@@ -45,6 +44,20 @@ projects:
 ```
 
 2. Copy `CLAUDE.md.template` to your repo as `CLAUDE.md` (or append its contents to your existing `CLAUDE.md`). This tells Claude Code to use the task system during coding sessions.
+
+## Skills
+
+### tasknote-quick
+
+For simple, everyday task operations (~80 lines). Triggers on: "create a task", "add a task", "mark done", "what's on my plate", "what's overdue", "todo", "remind me to".
+
+Covers: create, update, complete, list/search, time tracking, filename convention.
+
+### tasknote (full lifecycle)
+
+For comprehensive research workflow management (~430 lines + references). Triggers on: "I need to...", "I just finished...", "the results are...", "update the data log", "create a meeting note", "what's the status of...".
+
+Covers everything in `tasknote-quick`, plus: experiment logs, data logs, meeting notes, multi-session task tracking, detail/reference cards, project hierarchy, cross-updating between tasks and logs.
 
 ## How It Works
 
@@ -79,16 +92,29 @@ You don't need to explicitly say "create a task." Just describe what you're doin
 - "The preprocessing pipeline is done" → completes the task with a summary
 - "Remind me to email Dr. Chen" → creates a quick task
 
-## Skill Contents
+### Reference Verification
+
+Both skills verify project and task references before creating wikilinks. If you say "add a subtask for project BII", Claude will search existing projects, find the best match, and confirm with you rather than guessing a path that may not exist.
+
+## Plugin Contents
 
 ```
-skills/tasknote/
-├── SKILL.md                      # Main skill instructions (~420 lines)
-└── references/
-    ├── mtn-commands.md           # CLI command reference
-    ├── templates.md              # Copy-paste templates for all note types
-    ├── taxonomy.md               # Tag hierarchy and context values
-    └── property-types.md         # Frontmatter property types and formats
+tasknote-skill/
+├── .claude-plugin/
+│   ├── plugin.json                # Plugin metadata
+│   └── marketplace.json           # Marketplace distribution config
+├── skills/
+│   ├── tasknote/                  # Full lifecycle skill
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │       ├── mtn-commands.md    # CLI command reference
+│   │       ├── templates.md       # Note type templates
+│   │       ├── taxonomy.md        # Tag hierarchy and context values
+│   │       └── property-types.md  # Frontmatter property types/formats
+│   └── tasknote-quick/            # Lightweight task skill
+│       └── SKILL.md
+├── CLAUDE.md.template             # Per-repo setup template
+└── README.md
 ```
 
 ## License
