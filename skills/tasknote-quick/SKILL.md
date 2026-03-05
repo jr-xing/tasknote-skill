@@ -12,9 +12,9 @@ Lightweight task operations using `mtn` CLI. For full lifecycle (experiment logs
 **CRITICAL: Never guess wikilink paths.** Before creating a task that references a project or parent task, verify it exists:
 
 ```bash
-# Find matching projects/tasks
-mtn search "<keyword>" -p <collection>
-mtn list -p <collection>
+# Find matching projects/tasks (no -p flag — mtn resolves collection automatically)
+mtn search "<keyword>"
+mtn list
 ```
 
 If the user says "for project BII" or "subtask of preprocessing", fuzzy-match against search results. If no match, show candidates and ask. Never invent a `[[path]]`.
@@ -22,13 +22,13 @@ If the user says "for project BII" or "subtask of preprocessing", fuzzy-match ag
 ## Create a Task
 
 ```bash
-# 1. Create via mtn NLP
-mtn create "<text> @context +exact-project-name due <date> <priority> priority #tag" -p <collection>
+# 1. Create via mtn NLP (no -p flag — mtn resolves collection automatically)
+mtn create "<text> @context +exact-project-name due <date> <priority> priority #tag"
 # Output: → tasks/<Title>.md
 
-# 2. Rename to convention
+# 2. Rename to convention — use the EXACT output path from step 1
 DATE=$(date +%Y-%m-%d)
-mv "<collection>/tasks/<Title>.md" "<collection>/tasks/${DATE}-TASK <Title>.md"
+mv "tasks/<Title>.md" "tasks/${DATE}-TASK <Title>.md"
 ```
 
 **NLP patterns:** `#tag`, `@context` (data/experiment/code/writing/admin), `+project`, date phrases, priority words, `~30m` estimate.
@@ -42,7 +42,10 @@ After creation, edit the body to add a brief Log entry:
 [What needs to be done and any context]
 ```
 
-For substantial tasks, also add Motivation and Goals sections above the Log.
+**Motivation and Goals sections are OPT-IN only.** Only add these if the user explicitly provides the content:
+- Add `## Motivation` only if the user says something like "motivation:...", "motiv:...", "because...", or clearly states why the task matters
+- Add `## Goals` only if the user explicitly lists goals (e.g., "goal:...", "goals are...", "deliverables:...")
+- If the user's prompt does not contain motivation or goals, **do NOT add these sections and do NOT fabricate content for them** — just add the Log entry
 
 If the task has a parent, add to frontmatter after creation:
 ```yaml
@@ -70,17 +73,17 @@ Optionally add a brief Summary section between Goals and Log before completing.
 ## List / Search
 
 ```bash
-mtn list -p <collection>                    # Active tasks
-mtn list --overdue -p <collection>          # Overdue
-mtn search "<query>" -p <collection>        # Full-text search
-mtn timer log --period week -p <collection> # Time this week
+mtn list                    # Active tasks
+mtn list --overdue          # Overdue
+mtn search "<query>"        # Full-text search
+mtn timer log --period week # Time this week
 ```
 
 ## Time Tracking
 
 ```bash
-mtn timer start "<task>" -d "focus description" -p <collection>
-mtn timer stop -p <collection>
+mtn timer start "<task>" -d "focus description"
+mtn timer stop
 ```
 
 ## Filename Convention
