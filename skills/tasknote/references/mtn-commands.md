@@ -14,7 +14,7 @@ The NLP parser extracts:
 |---|---|---|
 | `#tag` | `#shopping` | Tag |
 | `@context` | `@errands` | Context |
-| `+project` | `+quarterly-review` | Project (stored as wikilink) |
+| `+project` | `+quarterly-review` | Project — **breaks with spaces**; prefer adding `projects` frontmatter manually |
 | Date words | `tomorrow`, `friday`, `next week` | Due date |
 | Priority words | `high priority`, `urgent` | Priority |
 | Recurrence | `every day`, `weekly`, `every monday` | Recurrence rule |
@@ -144,7 +144,7 @@ For tasks, always use `mtn create`, then rename to the filename convention, then
 
 ```bash
 # 1. Create via mtn (generates title-based filename)
-mtn create "My task title @context +project"
+mtn create "My task title @context"
 # Output: → tasks/My task title.md
 
 # 2. Rename to convention — use the EXACT output path from step 1
@@ -176,7 +176,6 @@ contexts:
   - data
 projects:
   - "[[projects/2026-02-MICCAI]]"
-parent: "[[tasks/Collect CMR data]]"
 cards:
   - "[[cards/detail/CMR-cine-preprocessing]]"
   - "[[cards/reference/UK-Biobank-access]]"
@@ -210,7 +209,6 @@ timeEntries:
 | contexts | List | `contexts: [data, code]` |
 | projects | Link List | `projects: ["[[projects/2026-02-MICCAI]]"]` |
 | tags | List | `tags: [modality/cine, source/ukbb]` |
-| parent | Link | `parent: "[[tasks/Parent Task]]"` |
 | blockedBy | Link List | `blockedBy: [{uid: "[[tasks/Other]]"}]` |
 | cards | Link List | `cards: ["[[cards/detail/Something]]"]` |
 | timeEstimate | Number | `timeEstimate: 60` (minutes) |

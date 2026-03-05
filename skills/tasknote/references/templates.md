@@ -64,7 +64,6 @@ projects:
 tags:
   - project/[project-shortname]
   - [domain-specific tags]
-parent: "[[tasks/Parent Task Name]]"     # optional, for subtasks
 cards:                                    # optional, links to detail/reference cards
   - "[[cards/detail/card-name]]"
   - "[[cards/reference/card-name]]"

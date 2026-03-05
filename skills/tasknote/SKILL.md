@@ -82,10 +82,11 @@ Body: Objective, Key Milestones (checkboxes), Current Status section.
 The core work unit. Created via `mtn create`, then body-enriched.
 
 ```bash
-mtn create "Collect CMR cine data from UK Biobank due march-15 high priority @data +2026-02-MICCAI #modality/cine #source/ukbb"
+# Do NOT use +project — it breaks with spaces. Add projects via frontmatter edit instead.
+mtn create "Collect CMR cine data from UK Biobank due march-15 high priority @data #modality/cine #source/ukbb"
 ```
 
-After creation, use `mtn show "<title>"` to find the file path, then edit the body.
+After creation, rename to convention, then edit frontmatter to add `projects: ["[[projects/2026-02-01-PROJECT MICCAI 2026]]"]`. Use `mtn show "<title>"` to find the file path, then edit the body.
 
 **Body structure for substantial tasks:**
 
@@ -105,8 +106,6 @@ After creation, use `mtn show "<title>"` to find the file path, then edit the bo
 ```
 
 **For quick/lightweight tasks**, skip Motivation and Goals — just add a Log entry.
-
-**Subtask hierarchy**: Use the `parent` frontmatter field. After creating a task, add `parent: "[[tasks/Parent Task Name]]"` to the frontmatter manually (mtn create doesn't support this directly). Or set `blockedBy` for dependency relationships.
 
 ### 3. Detail Card
 
@@ -234,7 +233,7 @@ After writing a meeting note, create tasks for each action item and link them in
 
 ### Phase 1: Creation
 
-1. **Resolve references FIRST** — before creating anything, verify that projects, parent tasks, and blockers actually exist:
+1. **Resolve references FIRST** — before creating anything, verify that projects and blockers actually exist:
    ```bash
    # List existing projects to match user's mention
    mtn list | grep -i "<keyword>"
@@ -243,14 +242,16 @@ After writing a meeting note, create tasks for each action item and link them in
    ```
    - If the user says "for project BII" or "subtask of preprocessing", fuzzy-match against existing notes. **Never guess a wikilink path** — always verify via `mtn search` or `mtn list` first.
    - If no match is found, ask the user: "I couldn't find a project matching 'BII'. Did you mean '2026-03-05-PROJECT Yale Biomedical Imaging Institute Project List'?" Show candidates.
-   - For `parent` fields, the target must be an existing task. For `projects`, it must be an existing project note.
+   - For `projects`, the target must be an existing project note.
 2. **Create via `mtn create`** with NLP patterns:
    - `#tag` for tags (use hierarchical: `#modality/cine`, `#source/ukbb`)
    - `@context` for context (`@data`, `@experiment`, `@code`, `@writing`)
-   - `+project` for project link — use the **exact project name** from the verified match (e.g., `+2026-03-05-PROJECT Yale Biomedical Imaging Institute Project List`)
    - Date phrases, priority words, `~estimate`
+   - **Do NOT use `+project`** — it breaks with spaces. Add projects via frontmatter edit in step 4 instead.
 3. **Rename** the file to the filename convention (see Filename Convention section).
-4. **Enrich the body** — read the file with `mtn show`, then edit to add a Log entry. Only add Motivation/Goals sections if the user explicitly provided that content — never fabricate them.
+4. **Enrich the file** — read the file with `mtn show`, then:
+   - Add `projects: ["[[projects/YYYY-MM-DD-PROJECT Name]]"]` to frontmatter
+   - Add a Log entry to the body. Only add Motivation/Goals sections if the user explicitly provided that content — never fabricate them.
 5. **Start timer** if the user is beginning work now.
 6. **Cross-reference** — if this task relates to an existing data or experiment log, mention the connection in the log entry.
 
@@ -388,7 +389,7 @@ The date is the creation date (`YYYY-MM-DD`). The title in frontmatter is unchan
 
 ```bash
 # 1. Create the task
-mtn create "Train baseline segmentation model due april-15 @experiment +2026-02-MICCAI"
+mtn create "Train baseline segmentation model due april-15 @experiment"
 # mtn outputs: → tasks/Train baseline segmentation model.md
 
 # 2. Rename to convention — use the EXACT output path from step 1
@@ -411,7 +412,7 @@ cards:
 
 ## Important Behaviors
 
-**ALWAYS verify before linking.** Never guess wikilink paths for projects, parent tasks, or blockers. Run `mtn search` or `mtn list` to find the actual file, then use its real path. If you can't find a match, ask the user — don't invent a path.
+**ALWAYS verify before linking.** Never guess wikilink paths for projects or blockers. Run `mtn search` or `mtn list` to find the actual file, then use its real path. If you can't find a match, ask the user — don't invent a path.
 
 **Be proactive about status transitions.** "I'm starting on X" → set in-progress. "X is done" → complete. Don't wait to be explicitly told.
 

@@ -9,7 +9,7 @@ Lightweight task operations using `mtn` CLI. For full lifecycle (experiment logs
 
 ## Before Anything: Verify References
 
-**CRITICAL: Never guess wikilink paths.** Before creating a task that references a project or parent task, verify it exists:
+**CRITICAL: Never guess wikilink paths.** Before creating a task that references a project, verify it exists:
 
 ```bash
 # Find matching projects/tasks (no -p flag — mtn resolves collection automatically)
@@ -23,15 +23,20 @@ If the user says "for project BII" or "subtask of preprocessing", fuzzy-match ag
 
 ```bash
 # 1. Create via mtn NLP (no -p flag — mtn resolves collection automatically)
-mtn create "<text> @context +exact-project-name due <date> <priority> priority #tag"
+# Do NOT use +project — it breaks with spaces. Add projects via frontmatter edit instead.
+mtn create "<text> @context due <date> <priority> priority #tag"
 # Output: → tasks/<Title>.md
 
 # 2. Rename to convention — use the EXACT output path from step 1
 DATE=$(date +%Y-%m-%d)
 mv "tasks/<Title>.md" "tasks/${DATE}-TASK <Title>.md"
+
+# 3. Add project link — edit the task's frontmatter to add:
+#    projects:
+#      - "[[projects/YYYY-MM-DD-PROJECT Project Name]]"
 ```
 
-**NLP patterns:** `#tag`, `@context` (data/experiment/code/writing/admin), `+project`, date phrases, priority words, `~30m` estimate.
+**NLP patterns:** `#tag`, `@context` (data/experiment/code/writing/admin), date phrases, priority words, `~30m` estimate. **Note:** `+project` does not work reliably with spaces — always add projects via frontmatter edit.
 
 After creation, edit the body to add a brief Log entry:
 
@@ -46,11 +51,6 @@ After creation, edit the body to add a brief Log entry:
 - Add `## Motivation` only if the user says something like "motivation:...", "motiv:...", "because...", or clearly states why the task matters
 - Add `## Goals` only if the user explicitly lists goals (e.g., "goal:...", "goals are...", "deliverables:...")
 - If the user's prompt does not contain motivation or goals, **do NOT add these sections and do NOT fabricate content for them** — just add the Log entry
-
-If the task has a parent, add to frontmatter after creation:
-```yaml
-parent: "[[tasks/YYYY-MM-DD-TASK Parent Task Name]]"
-```
 
 ## Update a Task
 
