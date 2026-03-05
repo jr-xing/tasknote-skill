@@ -234,15 +234,25 @@ After writing a meeting note, create tasks for each action item and link them in
 
 ### Phase 1: Creation
 
-1. **Parse the user's intent** — extract what they want to do, which project it belongs to, relevant tags.
+1. **Resolve references FIRST** — before creating anything, verify that projects, parent tasks, and blockers actually exist:
+   ```bash
+   # List existing projects to match user's mention
+   mtn list -p <collection> | grep -i "<keyword>"
+   # Or search for a specific project/task
+   mtn search "<keyword>" -p <collection>
+   ```
+   - If the user says "for project BII" or "subtask of preprocessing", fuzzy-match against existing notes. **Never guess a wikilink path** — always verify via `mtn search` or `mtn list` first.
+   - If no match is found, ask the user: "I couldn't find a project matching 'BII'. Did you mean '2026-03-05-PROJECT Yale Biomedical Imaging Institute Project List'?" Show candidates.
+   - For `parent` fields, the target must be an existing task. For `projects`, it must be an existing project note.
 2. **Create via `mtn create`** with NLP patterns:
    - `#tag` for tags (use hierarchical: `#modality/cine`, `#source/ukbb`)
    - `@context` for context (`@data`, `@experiment`, `@code`, `@writing`)
-   - `+project` for project link (`+2026-02-MICCAI`)
+   - `+project` for project link — use the **exact project name** from the verified match (e.g., `+2026-03-05-PROJECT Yale Biomedical Imaging Institute Project List`)
    - Date phrases, priority words, `~estimate`
-3. **Enrich the body** — read the file with `mtn show`, then edit to add Motivation, Goals, Log.
-4. **Start timer** if the user is beginning work now.
-5. **Cross-reference** — if this task relates to an existing data or experiment log, mention the connection in the log entry.
+3. **Rename** the file to the filename convention (see Filename Convention section).
+4. **Enrich the body** — read the file with `mtn show`, then edit to add Motivation, Goals, Log.
+5. **Start timer** if the user is beginning work now.
+6. **Cross-reference** — if this task relates to an existing data or experiment log, mention the connection in the log entry.
 
 **Context inference guide:**
 - Mentions of downloading, cleaning, preprocessing, annotation → `@data`
@@ -401,11 +411,13 @@ cards:
 
 ## Important Behaviors
 
+**ALWAYS verify before linking.** Never guess wikilink paths for projects, parent tasks, or blockers. Run `mtn search` or `mtn list` to find the actual file, then use its real path. If you can't find a match, ask the user — don't invent a path.
+
 **Be proactive about status transitions.** "I'm starting on X" → set in-progress. "X is done" → complete. Don't wait to be explicitly told.
 
 **Timestamps matter.** Always use actual current date in log entries (`date +%Y-%m-%d`).
 
-**Don't over-ask for clear intents.** If the user says "I need to retrain with Yale data for MICCAI", just create the task. Don't ask "which project?" when they already said MICCAI.
+**Don't over-ask for clear intents.** If the user says "I need to retrain with Yale data for MICCAI", just create the task. Don't ask "which project?" when they already said MICCAI — but DO verify the project path exists via search before linking.
 
 **Do ask for ambiguous intents.** "Maybe we should try X" or "I was thinking about Y" — ask whether to track as a task.
 
