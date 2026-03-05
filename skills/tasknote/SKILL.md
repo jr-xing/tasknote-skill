@@ -237,9 +237,9 @@ After writing a meeting note, create tasks for each action item and link them in
 1. **Resolve references FIRST** — before creating anything, verify that projects, parent tasks, and blockers actually exist:
    ```bash
    # List existing projects to match user's mention
-   mtn list -p <collection> | grep -i "<keyword>"
+   mtn list | grep -i "<keyword>"
    # Or search for a specific project/task
-   mtn search "<keyword>" -p <collection>
+   mtn search "<keyword>"
    ```
    - If the user says "for project BII" or "subtask of preprocessing", fuzzy-match against existing notes. **Never guess a wikilink path** — always verify via `mtn search` or `mtn list` first.
    - If no match is found, ask the user: "I couldn't find a project matching 'BII'. Did you mean '2026-03-05-PROJECT Yale Biomedical Imaging Institute Project List'?" Show candidates.
@@ -250,7 +250,7 @@ After writing a meeting note, create tasks for each action item and link them in
    - `+project` for project link — use the **exact project name** from the verified match (e.g., `+2026-03-05-PROJECT Yale Biomedical Imaging Institute Project List`)
    - Date phrases, priority words, `~estimate`
 3. **Rename** the file to the filename convention (see Filename Convention section).
-4. **Enrich the body** — read the file with `mtn show`, then edit to add Motivation, Goals, Log.
+4. **Enrich the body** — read the file with `mtn show`, then edit to add a Log entry. Only add Motivation/Goals sections if the user explicitly provided that content — never fabricate them.
 5. **Start timer** if the user is beginning work now.
 6. **Cross-reference** — if this task relates to an existing data or experiment log, mention the connection in the log entry.
 
@@ -388,13 +388,13 @@ The date is the creation date (`YYYY-MM-DD`). The title in frontmatter is unchan
 
 ```bash
 # 1. Create the task
-mtn create "Train baseline segmentation model due april-15 @experiment +2026-02-MICCAI" -p <collection>
+mtn create "Train baseline segmentation model due april-15 @experiment +2026-02-MICCAI"
 # mtn outputs: → tasks/Train baseline segmentation model.md
 
-# 2. Rename to convention
+# 2. Rename to convention — use the EXACT output path from step 1
 DATE=$(date +%Y-%m-%d)
-mv "<collection>/tasks/Train baseline segmentation model.md" \
-   "<collection>/tasks/${DATE}-TASK Train baseline segmentation model.md"
+mv "tasks/Train baseline segmentation model.md" \
+   "tasks/${DATE}-TASK Train baseline segmentation model.md"
 ```
 
 **For non-task notes** (projects, logs, cards, meetings), create the file directly with the correct filename — no rename needed since these aren't created via `mtn create`.

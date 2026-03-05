@@ -144,15 +144,15 @@ For tasks, always use `mtn create`, then rename to the filename convention, then
 
 ```bash
 # 1. Create via mtn (generates title-based filename)
-mtn create "My task title @context +project" -p <collection>
+mtn create "My task title @context +project"
 # Output: → tasks/My task title.md
 
-# 2. Rename to convention: YYYY-MM-DD-TASK <title>.md
+# 2. Rename to convention — use the EXACT output path from step 1
 DATE=$(date +%Y-%m-%d)
-mv "<collection>/tasks/My task title.md" \
-   "<collection>/tasks/${DATE}-TASK My task title.md"
+mv "tasks/My task title.md" \
+   "tasks/${DATE}-TASK My task title.md"
 
-# 3. Edit the body (add Motivation, Goals, Log)
+# 3. Edit the body (add Log entry; add Motivation/Goals only if user provided them)
 ```
 
 `mtn` indexes by frontmatter, not filename — renamed files are found normally by `mtn list`, `mtn search`, etc.
