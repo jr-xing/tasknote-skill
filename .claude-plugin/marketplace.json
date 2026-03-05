@@ -1,0 +1,15 @@
+{
+  "name": "tasknote-skill",
+  "owner": {
+    "name": "Jerry Xing",
+    "url": "https://github.com/jr-xing"
+  },
+  "plugins": [
+    {
+      "name": "tasknote",
+      "source": "./",
+      "description": "Manage research task lifecycle using mdbase-tasknotes (mtn) CLI — task creation, time tracking, experiment/data logs, meeting notes, and project hierarchy in an Obsidian vault.",
+      "version": "0.1.0"
+    }
+  ]
+}
