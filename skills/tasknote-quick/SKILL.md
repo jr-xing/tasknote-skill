@@ -7,6 +7,8 @@ description: "Quick task creation and updates using mdbase-tasknotes (mtn) CLI. 
 
 Lightweight task operations using `mtn` CLI. For full lifecycle (experiment logs, data logs, meeting notes, multi-session tracking), use the `tasknote` skill instead.
 
+For the full mtn command reference, read `references/mtn-commands.md` in the `tasknote` skill directory.
+
 ## Before Anything: Resolve Collection Path
 
 **CRITICAL: `mtn` must know which Obsidian vault to use.** Before running any `mtn` command:
@@ -102,6 +104,20 @@ mtn list --overdue          # Overdue
 mtn search "<query>"        # Full-text search
 mtn timer log --period week # Time this week
 ```
+
+## List Subtasks of a Project
+
+Use `mtn projects show` — this is the fastest way to find all tasks linked to a project:
+
+```bash
+# List all tasks under a project (use the project title from mtn search)
+mtn projects show "<project title>" -p <collection>
+
+# List all projects
+mtn projects list -p <collection>
+```
+
+**Note:** `mtn projects show` accepts the project **title** (not filename). Use the title returned by `mtn search` or `mtn projects list`.
 
 ## Time Tracking
 

@@ -304,6 +304,20 @@ After writing a meeting note, create tasks for each action item and link them in
 4. **Update related logs** — if this was an experiment task, make sure the experiment log has the final results. If data task, make sure the data log's Current State reflects the new status.
 5. **Check for unblocked tasks** — if other tasks had `blockedBy` pointing to this one, notify the user.
 
+### Querying: Subtasks and Project Overview
+
+To list all tasks under a project, use `mtn projects show` — this is much faster than grep/JSON filtering:
+
+```bash
+# List all tasks linked to a project (use project title, not filename)
+mtn projects show "<project title>" -p <collection>
+
+# List all projects
+mtn projects list -p <collection>
+```
+
+**Note:** `mtn projects show` accepts the project **title** (not filename). Use the title returned by `mtn search` or `mtn projects list`.
+
 ---
 
 ## Multi-Session Tasks

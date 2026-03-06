@@ -100,11 +100,12 @@ mtn timer log --from 2026-02-01 --to 2026-02-28
 ```bash
 # List all projects
 mtn projects list
-mtn projects list --stats    # With completion percentages
 
-# Show tasks for a project
-mtn projects show <project-name>
+# Show tasks for a project (use the project title, not filename)
+mtn projects show "<project title>"
 ```
+
+**Note:** `mtn projects show` accepts the project **title** (from `mtn search` or `mtn projects list`), not the filename. This is the fastest way to list all subtasks of a project.
 
 ## Statistics
 
