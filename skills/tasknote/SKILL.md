@@ -22,13 +22,17 @@ For exact property names, types, and formats, read `references/property-types.md
 
 ## Prerequisites
 
-`mtn` must be installed and configured. Verify with:
+`mtn` must be installed. Before running any `mtn` command, resolve the collection path:
 
-```bash
-mtn config --get collectionPath
-```
+1. **Read `CLAUDE.md`** (in the current project root or working directory) and look for a collection path (e.g., `MDBASE_TASKNOTES_PATH`, `collectionPath`, or a vault path).
+2. If found, pass it to **every** `mtn` command with `-p <path>`:
+   ```bash
+   mtn list -p /path/to/vault
+   mtn create "..." -p /path/to/vault
+   ```
+3. If `CLAUDE.md` does not specify a collection path, **ask the user** — do NOT let `mtn` fall back to its default config (which may point to a temp folder and waste time searching).
 
-If this fails, ask the user to configure their collection path.
+Never run `mtn` without `-p` unless you have confirmed the collection path is correctly configured via `mtn config --get collectionPath`.
 
 ---
 

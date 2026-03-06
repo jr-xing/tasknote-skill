@@ -128,6 +128,8 @@ Collection path resolution order:
 3. `collectionPath` in config file
 4. Current working directory
 
+**Important:** Always use `-p <path>` explicitly. The default config may point to a temp folder, causing `mtn` to waste time searching. Read `CLAUDE.md` for the correct vault path; if not found, ask the user.
+
 ## File Operations
 
 Since non-task notes (projects, logs, cards, meetings) aren't mtn tasks, create them directly:

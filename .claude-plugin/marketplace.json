@@ -9,7 +9,7 @@
       "name": "tasknote",
       "source": "./",
       "description": "Manage research task lifecycle using mdbase-tasknotes (mtn) CLI — task creation, time tracking, experiment/data logs, meeting notes, and project hierarchy in an Obsidian vault.",
-      "version": "0.1.6"
+      "version": "0.1.7"
     }
   ]
 }

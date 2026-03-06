@@ -7,14 +7,25 @@ description: "Quick task creation and updates using mdbase-tasknotes (mtn) CLI. 
 
 Lightweight task operations using `mtn` CLI. For full lifecycle (experiment logs, data logs, meeting notes, multi-session tracking), use the `tasknote` skill instead.
 
-## Before Anything: Verify References
+## Before Anything: Resolve Collection Path
 
-**CRITICAL: Never guess wikilink paths.** Before creating a task that references a project, verify it exists:
+**CRITICAL: `mtn` must know which Obsidian vault to use.** Before running any `mtn` command:
+
+1. **Read `CLAUDE.md`** (in the current project root or working directory) and look for a collection path (e.g., `MDBASE_TASKNOTES_PATH`, `collectionPath`, or a vault path).
+2. If found, pass it to every `mtn` command with `-p <path>`:
+   ```bash
+   mtn list -p /path/to/vault
+   mtn create "..." -p /path/to/vault
+   ```
+3. If `CLAUDE.md` does not specify a collection path, **ask the user** — do NOT let `mtn` fall back to its default config (which may point to a temp folder and waste time searching).
+
+## Verify References Before Linking
+
+**Never guess wikilink paths.** Before creating a task that references a project, verify it exists:
 
 ```bash
-# Find matching projects/tasks (no -p flag — mtn resolves collection automatically)
-mtn search "<keyword>"
-mtn list
+mtn search "<keyword>" -p <collection>
+mtn list -p <collection>
 ```
 
 If the user says "for project BII" or "subtask of preprocessing", fuzzy-match against search results. If no match, show candidates and ask. Never invent a `[[path]]`.
