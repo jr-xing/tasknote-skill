@@ -82,11 +82,16 @@ Body: Objective, Key Milestones (checkboxes), Current Status section.
 The core work unit. Created via `mtn create`, then body-enriched.
 
 ```bash
-# Do NOT use +project — it breaks with spaces. Add projects via frontmatter edit instead.
-mtn create "Collect CMR cine data from UK Biobank due march-15 high priority @data #modality/cine #source/ukbb"
+# Use +[[Note Name]] for project linking — works with spaces
+mtn create "Collect CMR cine data from UK Biobank due march-15 high priority @data +[[2026-02-01-PROJECT MICCAI 2026]] #modality/cine #source/ukbb"
+# Then fix the projects frontmatter (mtn double-wraps wikilinks):
+# Linux / Windows (Git Bash):
+sed -i "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/<Title>.md"
+# macOS:
+sed -i '' "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/<Title>.md"
 ```
 
-After creation, rename to convention, then edit frontmatter to add `projects: ["[[projects/2026-02-01-PROJECT MICCAI 2026]]"]`. Use `mtn show "<title>"` to find the file path, then edit the body.
+After creation and sed fix, rename to convention. Use `mtn show "<title>"` to find the file path, then edit the body.
 
 **Body structure for substantial tasks:**
 
@@ -246,14 +251,19 @@ After writing a meeting note, create tasks for each action item and link them in
 2. **Create via `mtn create`** with NLP patterns:
    - `#tag` for tags (use hierarchical: `#modality/cine`, `#source/ukbb`)
    - `@context` for context (`@data`, `@experiment`, `@code`, `@writing`)
+   - `+[[Note Name]]` for project/parent link (works with spaces)
    - Date phrases, priority words, `~estimate`
-   - **Do NOT use `+project`** — it breaks with spaces. Add projects via frontmatter edit in step 4 instead.
-3. **Rename** the file to the filename convention (see Filename Convention section).
-4. **Enrich the file** — read the file with `mtn show`, then:
-   - Add `projects: ["[[projects/YYYY-MM-DD-PROJECT Name]]"]` to frontmatter
-   - Add a Log entry to the body. Only add Motivation/Goals sections if the user explicitly provided that content — never fabricate them.
-5. **Start timer** if the user is beginning work now.
-6. **Cross-reference** — if this task relates to an existing data or experiment log, mention the connection in the log entry.
+3. **Fix projects frontmatter** — `mtn` double-wraps wikilinks. Run sed to fix:
+   ```bash
+   # Linux / Windows (Git Bash):
+   sed -i "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/<Title>.md"
+   # macOS:
+   sed -i '' "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/<Title>.md"
+   ```
+4. **Rename** the file to the filename convention (see Filename Convention section).
+5. **Enrich the body** — read the file with `mtn show`, then add a Log entry. Only add Motivation/Goals sections if the user explicitly provided that content — never fabricate them.
+6. **Start timer** if the user is beginning work now.
+7. **Cross-reference** — if this task relates to an existing data or experiment log, mention the connection in the log entry.
 
 **Context inference guide:**
 - Mentions of downloading, cleaning, preprocessing, annotation → `@data`
@@ -388,11 +398,17 @@ The date is the creation date (`YYYY-MM-DD`). The title in frontmatter is unchan
 **For tasks created via `mtn create`**, the CLI generates a title-based filename. Rename immediately after creation:
 
 ```bash
-# 1. Create the task
-mtn create "Train baseline segmentation model due april-15 @experiment"
+# 1. Create the task (use +[[Name]] if linking to a project)
+mtn create "Train baseline segmentation model due april-15 @experiment +[[2026-02-01-PROJECT MICCAI 2026]]"
 # mtn outputs: → tasks/Train baseline segmentation model.md
 
-# 2. Rename to convention — use the EXACT output path from step 1
+# 2. Fix projects frontmatter (mtn double-wraps wikilinks)
+# Linux / Windows (Git Bash):
+sed -i "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/Train baseline segmentation model.md"
+# macOS:
+sed -i '' "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/Train baseline segmentation model.md"
+
+# 3. Rename to convention — use the EXACT output path from step 1
 DATE=$(date +%Y-%m-%d)
 mv "tasks/Train baseline segmentation model.md" \
    "tasks/${DATE}-TASK Train baseline segmentation model.md"
@@ -400,12 +416,12 @@ mv "tasks/Train baseline segmentation model.md" \
 
 **For non-task notes** (projects, logs, cards, meetings), create the file directly with the correct filename — no rename needed since these aren't created via `mtn create`.
 
-**Wikilinks use the full filename** (without `.md`):
+**Wikilinks use the note name** (without folder prefix or `.md` — Obsidian resolves the path):
 ```yaml
 projects:
-  - "[[projects/2026-02-01-PROJECT MICCAI 2026]]"
+  - "[[2026-02-01-PROJECT MICCAI 2026]]"
 cards:
-  - "[[cards/detail/2026-03-05-CARD nnunet-training-config]]"
+  - "[[2026-03-05-CARD nnunet-training-config]]"
 ```
 
 ---

@@ -14,7 +14,7 @@ The NLP parser extracts:
 |---|---|---|
 | `#tag` | `#shopping` | Tag |
 | `@context` | `@errands` | Context |
-| `+project` | `+quarterly-review` | Project — **breaks with spaces**; prefer adding `projects` frontmatter manually |
+| `+project` or `+[[Name]]` | `+quarterly-review` or `+[[2026-03-05-PROJECT Name]]` | Project link — use `+[[Name]]` for names with spaces, then run sed fix (see File Operations) |
 | Date words | `tomorrow`, `friday`, `next week` | Due date |
 | Priority words | `high priority`, `urgent` | Priority |
 | Recurrence | `every day`, `weekly`, `every monday` | Recurrence rule |
@@ -143,16 +143,22 @@ mkdir -p projects/ cards/detail/ cards/reference/ logs/ meetings/
 For tasks, always use `mtn create`, then rename to the filename convention, then edit the body:
 
 ```bash
-# 1. Create via mtn (generates title-based filename)
-mtn create "My task title @context"
+# 1. Create via mtn (use +[[Name]] for project/parent linking)
+mtn create "My task title @context +[[2026-03-05-PROJECT My Project]]"
 # Output: → tasks/My task title.md
 
-# 2. Rename to convention — use the EXACT output path from step 1
+# 2. Fix projects frontmatter — mtn double-wraps wikilinks
+# Linux / Windows (Git Bash):
+sed -i "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/My task title.md"
+# macOS:
+sed -i '' "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/My task title.md"
+
+# 3. Rename to convention — use the EXACT output path from step 1
 DATE=$(date +%Y-%m-%d)
 mv "tasks/My task title.md" \
    "tasks/${DATE}-TASK My task title.md"
 
-# 3. Edit the body (add Log entry; add Motivation/Goals only if user provided them)
+# 4. Edit the body (add Log entry; add Motivation/Goals only if user provided them)
 ```
 
 `mtn` indexes by frontmatter, not filename — renamed files are found normally by `mtn list`, `mtn search`, etc.
@@ -175,7 +181,7 @@ due: 2026-03-15
 contexts:
   - data
 projects:
-  - "[[projects/2026-02-MICCAI]]"
+  - "[[2026-02-MICCAI]]"
 cards:
   - "[[cards/detail/CMR-cine-preprocessing]]"
   - "[[cards/reference/UK-Biobank-access]]"
@@ -207,7 +213,7 @@ timeEntries:
 | due | Date | `due: 2026-03-15` |
 | scheduled | DateTime | `scheduled: 2026-03-15T09:00` |
 | contexts | List | `contexts: [data, code]` |
-| projects | Link List | `projects: ["[[projects/2026-02-MICCAI]]"]` |
+| projects | Link List | `projects: ["[[2026-02-MICCAI]]"]` |
 | tags | List | `tags: [modality/cine, source/ukbb]` |
 | blockedBy | Link List | `blockedBy: [{uid: "[[tasks/Other]]"}]` |
 | cards | Link List | `cards: ["[[cards/detail/Something]]"]` |

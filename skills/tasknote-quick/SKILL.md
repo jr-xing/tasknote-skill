@@ -22,21 +22,24 @@ If the user says "for project BII" or "subtask of preprocessing", fuzzy-match ag
 ## Create a Task
 
 ```bash
-# 1. Create via mtn NLP (no -p flag — mtn resolves collection automatically)
-# Do NOT use +project — it breaks with spaces. Add projects via frontmatter edit instead.
-mtn create "<text> @context due <date> <priority> priority #tag"
+# 1. Create via mtn NLP — use +[[Note Name]] for project/parent linking
+mtn create "<text> @context +[[Note Name With Spaces]] due <date> <priority> priority #tag"
 # Output: → tasks/<Title>.md
 
-# 2. Rename to convention — use the EXACT output path from step 1
+# 2. Fix projects frontmatter — mtn double-wraps wikilinks, strip it
+# Linux / Windows (Git Bash):
+sed -i "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/<Title>.md"
+# macOS:
+sed -i '' "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/<Title>.md"
+
+# 3. Rename to convention — use the EXACT output path from step 1
 DATE=$(date +%Y-%m-%d)
 mv "tasks/<Title>.md" "tasks/${DATE}-TASK <Title>.md"
-
-# 3. Add project link — edit the task's frontmatter to add:
-#    projects:
-#      - "[[projects/YYYY-MM-DD-PROJECT Project Name]]"
 ```
 
-**NLP patterns:** `#tag`, `@context` (data/experiment/code/writing/admin), date phrases, priority words, `~30m` estimate. **Note:** `+project` does not work reliably with spaces — always add projects via frontmatter edit.
+**NLP patterns:** `#tag`, `@context` (data/experiment/code/writing/admin), `+[[Note Name]]` (project/parent link), date phrases, priority words, `~30m` estimate.
+
+**Important:** `mtn` always wraps `+` values as `[[projects/...]]` and double-wraps `[[` brackets. The sed post-processing step fixes this. The `+[[Name]]` syntax works for both project and task parents — no need to include folder prefixes like `projects/` or `tasks/`.
 
 After creation, edit the body to add a brief Log entry:
 
