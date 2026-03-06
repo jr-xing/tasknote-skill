@@ -244,12 +244,14 @@ After writing a meeting note, create tasks for each action item and link them in
 
 1. **Resolve references FIRST** — before creating anything, verify that projects and blockers actually exist:
    ```bash
-   # List existing projects to match user's mention
-   mtn list | grep -i "<keyword>"
-   # Or search for a specific project/task
-   mtn search "<keyword>"
+   # Search for a specific project/task
+   mtn search "<keyword>" -p <collection>
+   # Or list with JSON to get file paths
+   mtn list --json -p <collection>
    ```
-   - If the user says "for project BII" or "subtask of preprocessing", fuzzy-match against existing notes. **Never guess a wikilink path** — always verify via `mtn search` or `mtn list` first.
+   - **`mtn search` returns the note _title_, NOT the filename.** Titles can differ from filenames (e.g., title `AHA Scientific Session — Abstract Submission` vs filename `2026-03-05-PROJECT AHA Scientific Session Abstract Submission.md`). To get the actual filename, run `mtn show "<title>" -p <collection>` and look for the `Path:` line.
+   - Obsidian wikilinks resolve by **filename**, not title. Use the filename (without folder prefix and `.md`): `[[2026-03-05-PROJECT AHA Scientific Session Abstract Submission]]`.
+   - If the user says "for project BII" or "subtask of preprocessing", fuzzy-match against existing notes. **Never guess a wikilink path** — always verify first.
    - If no match is found, ask the user: "I couldn't find a project matching 'BII'. Did you mean '2026-03-05-PROJECT Yale Biomedical Imaging Institute Project List'?" Show candidates.
    - For `projects`, the target must be an existing project note.
 2. **Create via `mtn create`** with NLP patterns:
@@ -420,7 +422,7 @@ mv "tasks/Train baseline segmentation model.md" \
 
 **For non-task notes** (projects, logs, cards, meetings), create the file directly with the correct filename — no rename needed since these aren't created via `mtn create`.
 
-**Wikilinks use the note name** (without folder prefix or `.md` — Obsidian resolves the path):
+**Wikilinks use the filename** (without folder prefix or `.md` — Obsidian resolves the path). Note: filenames may differ from titles (e.g., em dashes `—` in titles may be absent in filenames). Always use `mtn show` to get the actual filename:
 ```yaml
 projects:
   - "[[2026-02-01-PROJECT MICCAI 2026]]"
@@ -432,7 +434,7 @@ cards:
 
 ## Important Behaviors
 
-**ALWAYS verify before linking.** Never guess wikilink paths for projects or blockers. Run `mtn search` or `mtn list` to find the actual file, then use its real path. If you can't find a match, ask the user — don't invent a path.
+**ALWAYS verify before linking.** Never guess wikilink paths for projects or blockers. Run `mtn search` to find a match, then `mtn show "<title>"` to get the actual **filename** (title ≠ filename). Use the filename (without folder prefix and `.md`) in wikilinks. If you can't find a match, ask the user — don't invent a path.
 
 **Be proactive about status transitions.** "I'm starting on X" → set in-progress. "X is done" → complete. Don't wait to be explicitly told.
 

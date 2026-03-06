@@ -25,8 +25,18 @@ Lightweight task operations using `mtn` CLI. For full lifecycle (experiment logs
 
 ```bash
 mtn search "<keyword>" -p <collection>
-mtn list -p <collection>
+mtn list --json -p <collection>
 ```
+
+**IMPORTANT: `mtn search` returns the note _title_, NOT the filename.** Titles can differ from filenames (e.g., title `AHA Scientific Session — Abstract Submission` vs filename `2026-03-05-PROJECT AHA Scientific Session Abstract Submission.md`). Obsidian wikilinks resolve by **filename**, not title. To get the actual filename:
+
+```bash
+# Use mtn show to get the Path:
+mtn show "<title from search>" -p <collection>
+# Look for the "Path:" line → extract filename without folder prefix and .md
+```
+
+Use the **filename** (without `.md`) in wikilinks: `[[2026-03-05-PROJECT AHA Scientific Session Abstract Submission]]`.
 
 If the user says "for project BII" or "subtask of preprocessing", fuzzy-match against search results. If no match, show candidates and ask. Never invent a `[[path]]`.
 
