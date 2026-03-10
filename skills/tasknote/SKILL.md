@@ -5,7 +5,7 @@ description: "Manage research task lifecycle using mdbase-tasknotes (mtn) CLI wi
 
 # TaskNote Lifecycle Skill
 
-This skill manages a hierarchical research task system using `mtn` (mdbase-tasknotes). Each piece of work lives as a markdown file with YAML frontmatter — queryable metadata on top, rich human-readable content below.
+This skill manages a hierarchical research task system using `mtnj` (a fork of mdbase-tasknotes with improved project name handling and `--folder` support). Install: `npm install -g jr-xing/mdbase-tasknotes`. Each piece of work lives as a markdown file with YAML frontmatter — queryable metadata on top, rich human-readable content below.
 
 The system has several note types organized in a hierarchy:
 
@@ -22,17 +22,17 @@ For exact property names, types, and formats, read `references/property-types.md
 
 ## Prerequisites
 
-`mtn` must be installed. Before running any `mtn` command, resolve the collection path:
+`mtnj` must be installed (`npm install -g jr-xing/mdbase-tasknotes`). Before running any `mtnj` command, resolve the collection path:
 
 1. **Read `CLAUDE.md`** (in the current project root or working directory) and look for a collection path (e.g., `MDBASE_TASKNOTES_PATH`, `collectionPath`, or a vault path).
-2. If found, pass it to **every** `mtn` command with `-p <path>`:
+2. If found, pass it to **every** `mtnj` command with `-p <path>`:
    ```bash
-   mtn list -p /path/to/vault
-   mtn create "..." -p /path/to/vault
+   mtnj list -p /path/to/vault
+   mtnj create "..." -p /path/to/vault
    ```
-3. If `CLAUDE.md` does not specify a collection path, **ask the user** — do NOT let `mtn` fall back to its default config (which may point to a temp folder and waste time searching).
+3. If `CLAUDE.md` does not specify a collection path, **ask the user** — do NOT let `mtnj` fall back to its default config (which may point to a temp folder and waste time searching).
 
-Never run `mtn` without `-p` unless you have confirmed the collection path is correctly configured via `mtn config --get collectionPath`.
+Never run `mtnj` without `-p` unless you have confirmed the collection path is correctly configured via `mtnj config --get collectionPath`.
 
 ---
 
@@ -83,19 +83,16 @@ Body: Objective, Key Milestones (checkboxes), Current Status section.
 
 ### 2. Task Note
 
-The core work unit. Created via `mtn create`, then body-enriched.
+The core work unit. Created via `mtnj create`, then body-enriched.
 
 ```bash
-# Use +[[Note Name]] for project linking — works with spaces
-mtn create "Collect CMR cine data from UK Biobank due march-15 high priority @data +[[2026-02-01-PROJECT MICCAI 2026]] #modality/cine #source/ukbb"
-# Then fix the projects frontmatter (mtn double-wraps wikilinks):
-# Linux / Windows (Git Bash):
-sed -i "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/<Title>.md"
-# macOS:
-sed -i '' "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/<Title>.md"
+# Use +[[Note Name]] for project linking — works with spaces natively in mtnj
+mtnj create "Collect CMR cine data from UK Biobank due march-15 high priority @data +[[2026-02-01-PROJECT MICCAI 2026]] #modality/cine #source/ukbb" --folder tasks -p <collection>
 ```
 
-After creation and sed fix, rename to convention. Use `mtn show "<title>"` to find the file path, then edit the body.
+`mtnj` produces clean wikilinks in frontmatter — no post-processing needed. After creation, rename to convention. Use `mtnj show "<title>"` to find the file path, then edit the body.
+
+> **Legacy note:** The original `mtn` CLI double-wraps wikilinks (`[[projects/[[...]]]]`) and lacks `--folder`. If using `mtn`, apply sed fix after creation: `sed -i "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "<file>"`
 
 **Body structure for substantial tasks:**
 
@@ -245,31 +242,26 @@ After writing a meeting note, create tasks for each action item and link them in
 1. **Resolve references FIRST** — before creating anything, verify that projects and blockers actually exist:
    ```bash
    # Search for a specific project/task
-   mtn search "<keyword>" -p <collection>
+   mtnj search "<keyword>" -p <collection>
    # Or list with JSON to get file paths
-   mtn list --json -p <collection>
+   mtnj list --json -p <collection>
    ```
-   - **`mtn search` returns the note _title_, NOT the filename.** Titles can differ from filenames (e.g., title `AHA Scientific Session — Abstract Submission` vs filename `2026-03-05-PROJECT AHA Scientific Session Abstract Submission.md`). To get the actual filename, run `mtn show "<title>" -p <collection>` and look for the `Path:` line.
+   - **`mtnj search` returns the note _title_, NOT the filename.** Titles can differ from filenames (e.g., title `AHA Scientific Session — Abstract Submission` vs filename `2026-03-05-PROJECT AHA Scientific Session Abstract Submission.md`). To get the actual filename, run `mtnj show "<title>" -p <collection>` and look for the `Path:` line.
    - Obsidian wikilinks resolve by **filename**, not title. Use the filename (without folder prefix and `.md`): `[[2026-03-05-PROJECT AHA Scientific Session Abstract Submission]]`.
    - If the user says "for project BII" or "subtask of preprocessing", fuzzy-match against existing notes. **Never guess a wikilink path** — always verify first.
    - If no match is found, ask the user: "I couldn't find a project matching 'BII'. Did you mean '2026-03-05-PROJECT Yale Biomedical Imaging Institute Project List'?" Show candidates.
    - For `projects`, the target must be an existing project note.
-2. **Create via `mtn create`** with NLP patterns:
+2. **Create via `mtnj create`** with NLP patterns and `--folder` to control output directory:
    - `#tag` for tags (use hierarchical: `#modality/cine`, `#source/ukbb`)
    - `@context` for context (`@data`, `@experiment`, `@code`, `@writing`)
-   - `+[[Note Name]]` for project/parent link (works with spaces)
+   - `+[[Note Name]]` for project/parent link (works with spaces natively)
    - Date phrases, priority words, `~estimate`
-3. **Fix projects frontmatter** — `mtn` double-wraps wikilinks. Run sed to fix:
-   ```bash
-   # Linux / Windows (Git Bash):
-   sed -i "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/<Title>.md"
-   # macOS:
-   sed -i '' "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/<Title>.md"
-   ```
-4. **Rename** the file to the filename convention (see Filename Convention section).
-5. **Enrich the body** — read the file with `mtn show`, then add a Log entry. Only add Motivation/Goals sections if the user explicitly provided that content — never fabricate them.
-6. **Start timer** if the user is beginning work now.
-7. **Cross-reference** — if this task relates to an existing data or experiment log, mention the connection in the log entry.
+   - `--folder tasks` (or `projects`, etc.) to place the file in the right directory
+   - `mtnj` produces clean wikilinks — no sed post-processing needed.
+3. **Rename** the file to the filename convention (see Filename Convention section).
+4. **Enrich the body** — read the file with `mtnj show`, then add a Log entry. Only add Motivation/Goals sections if the user explicitly provided that content — never fabricate them.
+5. **Start timer** if the user is beginning work now.
+6. **Cross-reference** — if this task relates to an existing data or experiment log, mention the connection in the log entry.
 
 **Context inference guide:**
 - Mentions of downloading, cleaning, preprocessing, annotation → `@data`
@@ -287,7 +279,7 @@ After writing a meeting note, create tasks for each action item and link them in
 
 ### Phase 2: Progress Updates
 
-1. **Find the task** — use `mtn search` or `mtn list` to locate it.
+1. **Find the task** — use `mtnj search` or `mtnj list` to locate it.
 2. **Update status** to `in-progress` if not already.
 3. **Start/stop timer** based on whether the user is actively working vs. just reporting.
 4. **Append to Log** — date-stamped entry with substantive content (decisions, results, blockers).
@@ -300,23 +292,9 @@ After writing a meeting note, create tasks for each action item and link them in
 
 1. **Stop timer**.
 2. **Write Summary section** — placed between Goals and Log. Synthesize the log entries into a coherent narrative with Key Outcomes and Lessons/Notes subsections.
-3. **Complete via `mtn complete`**.
+3. **Complete via `mtnj complete`**.
 4. **Update related logs** — if this was an experiment task, make sure the experiment log has the final results. If data task, make sure the data log's Current State reflects the new status.
 5. **Check for unblocked tasks** — if other tasks had `blockedBy` pointing to this one, notify the user.
-
-### Querying: Subtasks and Project Overview
-
-To list all tasks under a project, use `mtn projects show` — this is much faster than grep/JSON filtering:
-
-```bash
-# List all tasks linked to a project (use project title, not filename)
-mtn projects show "<project title>" -p <collection>
-
-# List all projects
-mtn projects list -p <collection>
-```
-
-**Note:** `mtn projects show` accepts the project **title** (not filename). Use the title returned by `mtn search` or `mtn projects list`.
 
 ---
 
@@ -325,7 +303,7 @@ mtn projects list -p <collection>
 Many research tasks span days or weeks — training runs, data collection, paper writing. These tasks naturally require multiple work sessions. The system handles this without splitting into subtasks:
 
 **Each work session produces two things in the same task note:**
-1. A `timeEntry` in frontmatter (via `mtn timer start/stop`) — the quantitative record
+1. A `timeEntry` in frontmatter (via `mtnj timer start/stop`) — the quantitative record
 2. A Log entry in the body — the narrative record
 
 The timeEntries array accumulates automatically:
@@ -345,8 +323,8 @@ timeEntries:
 **For calendar visibility**, use the `scheduled` field as a rolling "next session" marker. After each session, update it to when the user plans to work on this next:
 
 ```bash
-mtn timer stop
-mtn update "Train segmentation model" --scheduled 2026-03-12
+mtnj timer stop
+mtnj update "Train segmentation model" --scheduled 2026-03-12
 ```
 
 **For at-a-glance progress**, add a phase marker at the top of the Log section:
@@ -363,15 +341,15 @@ Update the phase marker as the task progresses through its natural stages.
 
 **Starting a session:**
 ```bash
-mtn update "<task>" --status in-progress    # if not already
-mtn timer start "<task>" -d "Brief focus description"
+mtnj update "<task>" --status in-progress    # if not already
+mtnj timer start "<task>" -d "Brief focus description"
 ```
 Then append a new log entry header: `### YYYY-MM-DD — [Session label]`
 
 **Ending a session:**
 ```bash
-mtn timer stop
-mtn update "<task>" --scheduled YYYY-MM-DD   # next planned session
+mtnj timer stop
+mtnj update "<task>" --scheduled YYYY-MM-DD   # next planned session
 ```
 Then fill in the log entry with what was accomplished, decisions, blockers, next steps.
 
@@ -387,14 +365,14 @@ If a single session produces very detailed technical output (>20 lines of specs,
 
 | User says | What to do |
 |---|---|
-| "What's on my plate?" | `mtn list` |
-| "What's overdue?" | `mtn list --overdue` |
-| "What data tasks are there?" | `mtn list --where 'contexts contains "data"'` |
-| "Show experiments for MICCAI" | `mtn list --where 'contexts contains "experiment"'` then filter by project tag |
-| "How's the MICCAI paper going?" | `mtn projects show 2026-02-MICCAI` + read the project note |
+| "What's on my plate?" | `mtnj list` |
+| "What's overdue?" | `mtnj list --overdue` |
+| "What data tasks are there?" | `mtnj list --where 'contexts contains "data"'` |
+| "Show experiments for MICCAI" | `mtnj list --where 'contexts contains "experiment"'` then filter by project tag |
+| "How's the MICCAI paper going?" | `mtnj projects show 2026-02-MICCAI` + read the project note |
 | "What's the current state of the cine data?" | Read the relevant data log file |
-| "Find that thing about segmentation" | `mtn search segmentation` |
-| "How much time this week?" | `mtn timer log --period week` |
+| "Find that thing about segmentation" | `mtnj search segmentation` |
+| "How much time this week?" | `mtnj timer log --period week` |
 | "What came out of the PI meeting?" | Search for recent meeting notes |
 
 ---
@@ -415,28 +393,23 @@ All note files follow a consistent naming pattern: `<date>-<TYPE> <title>.md`
 
 The date is the creation date (`YYYY-MM-DD`). The title in frontmatter is unchanged — this only affects the filename.
 
-**For tasks created via `mtn create`**, the CLI generates a title-based filename. Rename immediately after creation:
+**For tasks created via `mtnj create`**, the CLI generates a title-based filename. Rename immediately after creation:
 
 ```bash
-# 1. Create the task (use +[[Name]] if linking to a project)
-mtn create "Train baseline segmentation model due april-15 @experiment +[[2026-02-01-PROJECT MICCAI 2026]]"
-# mtn outputs: → tasks/Train baseline segmentation model.md
+# 1. Create the task (use +[[Name]] and --folder to control output)
+mtnj create "Train baseline segmentation model due april-15 @experiment +[[2026-02-01-PROJECT MICCAI 2026]]" --folder tasks -p <collection>
+# mtnj outputs: → tasks/Train baseline segmentation model.md
+# No sed fix needed — mtnj produces clean wikilinks
 
-# 2. Fix projects frontmatter (mtn double-wraps wikilinks)
-# Linux / Windows (Git Bash):
-sed -i "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/Train baseline segmentation model.md"
-# macOS:
-sed -i '' "s|\[\[projects/\[\[\(.*\)\]\]\]\]|[[\1]]|g" "tasks/Train baseline segmentation model.md"
-
-# 3. Rename to convention — use the EXACT output path from step 1
+# 2. Rename to convention — use the EXACT output path from step 1
 DATE=$(date +%Y-%m-%d)
 mv "tasks/Train baseline segmentation model.md" \
    "tasks/${DATE}-TASK Train baseline segmentation model.md"
 ```
 
-**For non-task notes** (projects, logs, cards, meetings), create the file directly with the correct filename — no rename needed since these aren't created via `mtn create`.
+**For non-task notes** (projects, logs, cards, meetings), create the file directly with the correct filename — no rename needed since these aren't created via `mtnj create`.
 
-**Wikilinks use the filename** (without folder prefix or `.md` — Obsidian resolves the path). Note: filenames may differ from titles (e.g., em dashes `—` in titles may be absent in filenames). Always use `mtn show` to get the actual filename:
+**Wikilinks use the filename** (without folder prefix or `.md` — Obsidian resolves the path). Note: filenames may differ from titles (e.g., em dashes `—` in titles may be absent in filenames). Always use `mtnj show` to get the actual filename:
 ```yaml
 projects:
   - "[[2026-02-01-PROJECT MICCAI 2026]]"
@@ -448,7 +421,7 @@ cards:
 
 ## Important Behaviors
 
-**ALWAYS verify before linking.** Never guess wikilink paths for projects or blockers. Run `mtn search` to find a match, then `mtn show "<title>"` to get the actual **filename** (title ≠ filename). Use the filename (without folder prefix and `.md`) in wikilinks. If you can't find a match, ask the user — don't invent a path.
+**ALWAYS verify before linking.** Never guess wikilink paths for projects or blockers. Run `mtnj search` to find a match, then `mtnj show "<title>"` to get the actual **filename** (title ≠ filename). Use the filename (without folder prefix and `.md`) in wikilinks. If you can't find a match, ask the user — don't invent a path.
 
 **Be proactive about status transitions.** "I'm starting on X" → set in-progress. "X is done" → complete. Don't wait to be explicitly told.
 
@@ -462,7 +435,7 @@ cards:
 
 **Read before writing.** Always read the file before editing it.
 
-**Use mtn's NLP.** Lean on the parser for dates, priorities, tags, contexts, and projects.
+**Use mtnj's NLP.** Lean on the parser for dates, priorities, tags, contexts, and projects.
 
 **Cross-update logs.** When a task update contains data status changes or experiment results, don't just update the task — update the relevant log too. This is important because logs are the permanent record while tasks are transient.
 
