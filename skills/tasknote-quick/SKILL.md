@@ -96,6 +96,8 @@ Optionally add a brief Summary section between Goals and Log before completing.
 ```bash
 mtnj list                    # Active tasks
 mtnj list --overdue          # Overdue
+mtnj tree                    # Hierarchical project → task → subtask view
+mtnj tree --tag source/yale  # Tree with filters (--status, --priority, --tag, --overdue, --all)
 mtnj search "<query>"        # Full-text search
 mtnj timer log --period week # Time this week
 ```

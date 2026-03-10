@@ -72,12 +72,15 @@ Create when: User starts a new research initiative (paper, grant, collaboration)
 Frontmatter:
 ```yaml
 title: "MICCAI 2026 — Cardiac Segmentation with Foundation Models"
+type: project                     # distinguishes projects from tasks
 status: active                    # active | paused | completed | archived
 tags:
   - project/2026-02-MICCAI
   - venue/miccai
 deadline: 2026-06-15
 ```
+
+Projects use `type: project` (defined in `_types/project.md`) while tasks use `type: task`. This lets `mtnj tree` distinguish project notes from task notes when building the hierarchy.
 
 Body: Objective, Key Milestones (checkboxes), Current Status section.
 
@@ -369,6 +372,7 @@ If a single session produces very detailed technical output (>20 lines of specs,
 | "What's overdue?" | `mtnj list --overdue` |
 | "What data tasks are there?" | `mtnj list --where 'contexts contains "data"'` |
 | "Show experiments for MICCAI" | `mtnj list --where 'contexts contains "experiment"'` then filter by project tag |
+| "Show me the project hierarchy" | `mtnj tree` — hierarchical project → task → subtask display |
 | "How's the MICCAI paper going?" | `mtnj projects show 2026-02-MICCAI` + read the project note |
 | "What's the current state of the cine data?" | Read the relevant data log file |
 | "Find that thing about segmentation" | `mtnj search segmentation` |

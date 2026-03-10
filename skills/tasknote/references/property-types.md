@@ -7,6 +7,7 @@ Authoritative reference for frontmatter property names, types, and formats. When
 | Property | Type | Example |
 |----------|------|---------|
 | title | text | `"My Task"` |
+| type | text | `"task"` or `"project"` — set by `_types/task.md` and `_types/project.md` |
 | status | text | `"open"`, `"in-progress"`, `"done"` |
 | priority | text | `"low"`, `"normal"`, `"high"` |
 | due | text (date) | `"2025-01-15"` |

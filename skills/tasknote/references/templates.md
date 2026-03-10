@@ -22,6 +22,7 @@ File location: `projects/YYYY-MM-DD-PROJECT [project-name].md`
 ```markdown
 ---
 title: "[Project Title — Venue/Grant Year]"
+type: project
 status: active
 tags:
   - project/[year-month-shortname]

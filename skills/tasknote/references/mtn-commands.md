@@ -14,7 +14,7 @@ The NLP parser extracts:
 |---|---|---|
 | `#tag` | `#shopping` | Tag |
 | `@context` | `@errands` | Context |
-| `+project` or `+[[Name]]` | `+quarterly-review` or `+[[2026-03-05-PROJECT Name]]` | Project link — use `+[[Name]]` for names with spaces, then run sed fix (see File Operations) |
+| `+project` or `+[[Name]]` | `+quarterly-review` or `+[[2026-03-05-PROJECT Name]]` | Project link — use `+[[Name]]` for names with spaces (`mtnj` handles this natively) |
 | Date words | `tomorrow`, `friday`, `next week` | Due date |
 | Priority words | `high priority`, `urgent` | Priority |
 | Recurrence | `every day`, `weekly`, `every monday` | Recurrence rule |
@@ -94,6 +94,24 @@ mtn timer log --period today
 mtn timer log --period week
 mtn timer log --from 2026-02-01 --to 2026-02-28
 ```
+
+## Tree View
+
+```bash
+# Hierarchical project → task → subtask display
+mtnj tree
+
+# With filters
+mtnj tree --status in-progress
+mtnj tree --priority high
+mtnj tree --tag source/yale
+mtnj tree --overdue
+
+# Include completed tasks (hidden by default)
+mtnj tree --all
+```
+
+Shows tasks organized by project, with subtask nesting via box-drawing characters. Subtask relationships are determined by the `projects` field: if a task's `projects` wikilink points to another task (not a project), it becomes a subtask. Tasks with no project appear under "Orphan tasks". Project names are omitted from task lines since the hierarchy already shows them.
 
 ## Projects
 
