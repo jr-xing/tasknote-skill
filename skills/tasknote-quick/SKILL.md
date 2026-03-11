@@ -100,6 +100,8 @@ mtnj tree                    # Hierarchical project → task → subtask view
 mtnj tree --tag source/yale  # Tree with filters (--status, --priority, --tag, --overdue, --all)
 mtnj search "<query>"        # Full-text search
 mtnj timer log --period week # Time this week
+mtnj organize                # Preview file reorganization into project folders (dry-run)
+mtnj organize --apply        # Execute the reorganization
 ```
 
 ## Time Tracking

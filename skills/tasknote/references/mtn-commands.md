@@ -113,6 +113,21 @@ mtnj tree --all
 
 Shows tasks organized by project, with subtask nesting via box-drawing characters. Subtask relationships are determined by the `projects` field: if a task's `projects` wikilink points to another task (not a project), it becomes a subtask. Tasks with no project appear under "Orphan tasks". Project names are omitted from task lines since the hierarchy already shows them.
 
+## Organize
+
+```bash
+# Preview planned moves (dry-run, default)
+mtnj organize
+
+# Execute the moves
+mtnj organize --apply
+
+# Also move orphan tasks to _unassigned/
+mtnj organize --apply --orphans unassigned
+```
+
+Reorganizes task files into project folders based on their `projects` wikilink hierarchy. Tasks with children get their own subfolder; leaf tasks stay as plain files. Nesting depth follows the parent chain with no limit. Uses `collection.rename()` to update all wikilinks automatically. Idempotent — running again after organize shows "0 moves planned".
+
 ## Projects
 
 ```bash
